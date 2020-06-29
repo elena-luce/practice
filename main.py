@@ -1,9 +1,6 @@
-import csv
+import pandas
 
 
-with open('NFA 2018.csv') as f:
-    reader = csv.reader(f)
-    for row in reader:
-        print(row)
-
-
+df = pandas.read_csv('NFA2018.csv',index_col='country')
+# print(df)
+df.to_csv('New.csv')
