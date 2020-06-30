@@ -18,7 +18,6 @@ for i in range(len(data)):
     # else:
     #     y = int(y)
     # print(y)
-
     for item in range(1,7):
         if pd.isna(data[i][item]):
              data[i][item] = data[i][7]/6
