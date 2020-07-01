@@ -8,29 +8,8 @@ df = pd.read_csv('NFA 2018.csv')
 headers = df.columns.tolist()
 data = np.array(df)
 
-
 # df.to_csv('New.csv')
 
-
-for i in range(len(data)):
-
-    y = data[i][1]
-
-    # if pd.isna(y):
-    #     y=3000
-    # else:
-    #     y = int(y)
-    # print(y)
-    
-    for item in range(2,8):
-        if pd.isna(data[i][item]):
-             data[i][item] = data[i][8]/6
-
-# for i in range(len(data)):
-#      '''#Остались пустые только в 9 столбце'''
-#     for item in range(2,11):
-#             if pd.isna(data[i][item]):
-#                 print('Nan: столбец-',item)
 print('Выберите, как заменять пропущенные значения:\n')
 print('1.Игнорировать\n')
 print('2.Взять значение по-умолчанию\n')
@@ -39,19 +18,40 @@ c = input()
 if c.isdigit():
     char = int(c)
     if char is 2:
-        print('Значение по-умолчанию берется из предыдущей строки')
+        print('Значение по-умолчанию для 2 столбца - 2020')
+        print('Значение по-умолчанию для 3-8 считается из общего')
+        print('Значение по-умолчанию для 1,9-11 - берется из предыдущей строки')
         for item in range(8,11):
             for i in range(len(data)):
                 '''#8-10 столбец'''
                 if pd.isna(data[i][item]):
                     if pd.isna(data[i-1][item]) is not True:
                         data[i][item] = data[i-1][item]
+        for i in range(len(data)):
+                '''#0 столбец'''
+                if pd.isna(data[i][0]):
+                    if pd.isna(data[i-1][0]) is not True:
+                        data[i][0] = data[i-1][0]
+        for i in range(len(data)):
+            '''#1 столбец'''
+            if pd.isna(data[i][1]):
+                data[i][1]=2020
+            '''#2-7 столбец'''
+            for item in range(2,8):
+                if pd.isna(data[i][item]):
+                     data[i][item] = data[i][8]/6
     elif char is 3:
         print('Среднее значение считается по всем странам')
-        for item in range(8,11):
+        print('Значение для 1 столбца - берется из предыдущей строки')
+        for i in range(len(data)):
+                '''#0 столбец'''
+                if pd.isna(data[i][0]):
+                    if pd.isna(data[i-1][0]) is not True:
+                        data[i][0] = data[i-1][0]
+        for item in range(1,11):
+            '''#1-10 столбец'''
             theSum = 0
             for i in range(len(data)):
-                '''#8-10 столбец'''
                 if pd.isna(data[i][item]) is not True:
                     theSum = theSum + data[i][item]
             for i in range(len(data)):
@@ -61,9 +61,9 @@ if c.isdigit():
             # print('Сумма - ',theSum,' длина - ',len(data))
             # print('Программа - ',theSum/len(data))
     else:
-        print('Значение игнорируется либо Вы выбрали другой вариант')
+        print('Значения игнорируются либо Вы выбрали другой вариант')
 else:
-    print('Значение игнорируется, т.к. Вы выбрали другой вариант')
+    print('Значения игнорируются, т.к. Вы выбрали другой вариант')
 '''#Убрать строку ниже'''
 num = list(range(11))
 '''#Убрать строку выше(нумерация стобцов)'''
