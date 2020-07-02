@@ -4,12 +4,13 @@ import numpy as np
 
 
 df = pd.read_csv('NFA 2018.csv')
-
+'''Список заголовков и спосок данных'''
 headers = df.columns.tolist()
 data = np.array(df)
 
 # df.to_csv('New.csv')
 
+'''Меню'''
 print('Выберите, как заменять пропущенные значения:\n')
 print('1.Игнорировать\n')
 print('2.Взять значение по-умолчанию\n')
@@ -28,15 +29,15 @@ if c.isdigit():
                     if pd.isna(data[i-1][item]) is not True:
                         data[i][item] = data[i-1][item]
         for i in range(len(data)):
-                '''#0 столбец'''
+                '''#0 столбец - страна'''
                 if pd.isna(data[i][0]):
                     if pd.isna(data[i-1][0]) is not True:
                         data[i][0] = data[i-1][0]
         for i in range(len(data)):
-            '''#1 столбец'''
+            '''#1 столбец - год'''
             if pd.isna(data[i][1]):
                 data[i][1]=2020
-            '''#2-7 столбец'''
+            '''#2-7 столбец - земли'''
             for item in range(2,8):
                 if pd.isna(data[i][item]):
                      data[i][item] = data[i][8]/6
@@ -44,7 +45,7 @@ if c.isdigit():
         print('Среднее значение считается по всем странам')
         print('Значение для 1 столбца - берется из предыдущей строки')
         for i in range(len(data)):
-                '''#0 столбец'''
+                '''#0 столбец - страна'''
                 if pd.isna(data[i][0]):
                     if pd.isna(data[i-1][0]) is not True:
                         data[i][0] = data[i-1][0]
@@ -64,10 +65,17 @@ if c.isdigit():
         print('Значения игнорируются либо Вы выбрали другой вариант')
 else:
     print('Значения игнорируются, т.к. Вы выбрали другой вариант')
+
+'''Делаем год значением int'''
+for i in range(len(data)):
+    if pd.isna(data[i][1]) is not True:
+        data[i][1] = int(data[i][1])
+
 '''#Убрать строку ниже'''
 num = list(range(11))
-'''#Убрать строку выше(нумерация стобцов)'''
+'''#Убрать строку выше(нумерация стобцов для удобства)'''
 
+'''!Запись в тестовый файл!'''
 with open('Norm.csv', "w", newline="") as file:
     writer = csv.writer(file)
     '''#Убрать строку ниже'''
