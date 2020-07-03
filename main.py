@@ -81,7 +81,15 @@ def norm(data):
     while is_digit(c) is not True:
         c = input('Введите числовое значение коэффициента нормализации:\n '
               '(используйте точки вместо запятых для десятичных дробей)')
-    if c is not '0':
+    '''Проверка, что коэф не 0, 0.0 и т.д.'''
+    n = c.find('.')
+    if n >= 0:
+        c = c[:n] + c[n+1:]
+    if (c.count('0') is len(c)):
+        print('Нормализация не прошла успешно, т.к. Вы ввели 0\n')
+    else:
+        c = c[:n] + '.'+ c[n:]
+        '''Умножение на коэффициент'''
         k = float(c)
         print('К каким столбцам применить коэффициент?')
         print('1.Один столбец')
@@ -91,8 +99,9 @@ def norm(data):
             char = int(c)
             if char is 1:
                 col = input("Нормализуется столбец -  ")
-                while col.isdigit() is False or int(col) > 10 and int(col) < 2:
-                    col = input("Повторите ввод нормализуемого столбца -  ")
+                while col.isdigit() is False or int(col) > 10 or int(col) < 2:
+                    col = input('Это должно быть число в пределах 2-10.\n'
+                                ' Повторите ввод нормализуемого столбца -  ')
                 col = int(col)
                 for i in range(len(data)):
                     data[i][col] = data[i][col]*k
@@ -100,9 +109,9 @@ def norm(data):
             elif char is 2:
                 col1 = input("Нормализуются значения столбцов начиная от - ")
                 col2 = input("И до - ")
-                while col1.isdigit() is False or int(col1) > 10 and int(col1) < 2:
+                while col1.isdigit() is False or int(col1) > 10 or int(col1) < 2:
                     col1 = input("Повторите ввод начального столбца -  ")
-                while col2.isdigit() is False or int(col2) > 10 and int(col2) < 2:
+                while col2.isdigit() is False or int(col2) > 10 or int(col2) < 2:
                     col2 = input("Повторите ввод начального столбца -  ")
                 col1 = int(col1)
                 col2 = int(col2)
@@ -112,15 +121,13 @@ def norm(data):
                     col1 = col
                     print('Столбцы поменяли местами:'
                           'от - ', col1,', до - ',col2)
-                for item in range(col1,col2):
+                for item in range(col1,col2+1):
                     '''#выбранные столбцы'''
                     for i in range(len(data)):
                         data[i][item] = data[i][item]*k
                 print('Нормализация прошла успешно\n')
             else:
                 print('Нормализация не прошла успешно, т.к. Вы выбрали другой вариант\n')
-    else:
-        print('Нормализация не прошла успешно, т.к. Вы ввели 0\n')
     return data
 
 def main():
