@@ -66,7 +66,7 @@ def missed (data):
 
 def is_digit(string):
         if string.isdigit():
-           return True
+            return True
         else:
             try:
                 float(string)
@@ -147,7 +147,7 @@ def main():
     '''#Убрать строку выше(нумерация стобцов для удобства)'''
 
     '''!Запись в тестовый файл!'''
-    with open('Norm.csv', "w", newline="") as file:
+    with open('Norm.csv', "w", newline="", encoding='utf8') as file:
         writer = csv.writer(file)
         '''#Убрать строку ниже'''
         writer.writerow(num)
