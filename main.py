@@ -1,7 +1,15 @@
 import csv
+import math
 import pandas as pd
 import numpy as np
 
+def Sum(item,data):
+    sum = 0
+    for i in range(len(data)):
+        if pd.isna(data[i][item]) is not True:
+            sum = sum + data[i][item]
+    arif_mean = sum/len(data)
+    return arif_mean
 
 def missed (data):
     print('Пункт 1:\n')
@@ -47,13 +55,9 @@ def missed (data):
                             data[i][0] = data[i-1][0]
             for item in range(1,11):
                 '''#1-10 столбец'''
-                theSum = 0
-                for i in range(len(data)):
-                    if pd.isna(data[i][item]) is not True:
-                        theSum = theSum + data[i][item]
                 for i in range(len(data)):
                     if pd.isna(data[i][item]):
-                        data[i][item] = theSum/len(data)
+                        data[i][item] = Sum(item,data)
                 '''Проверка:'''
                 # print('Сумма - ',theSum,' длина - ',len(data))
                 # print('Программа - ',theSum/len(data))
@@ -112,7 +116,7 @@ def norm(data):
                 while col1.isdigit() is False or int(col1) > 10 or int(col1) < 2:
                     col1 = input("Повторите ввод начального столбца -  ")
                 while col2.isdigit() is False or int(col2) > 10 or int(col2) < 2:
-                    col2 = input("Повторите ввод начального столбца -  ")
+                    col2 = input("Повторите ввод конечного столбца -  ")
                 col1 = int(col1)
                 col2 = int(col2)
                 if col2 < col1:
@@ -130,6 +134,68 @@ def norm(data):
                 print('Нормализация не прошла успешно, т.к. Вы выбрали другой вариант\n')
     return data
 
+def z_menu(data):
+    print('Выберите столец, к которому применить Z-оценку:')
+    print('1.Один столбец')
+    print('2.Несколько столбцов')
+    c = input()
+    if c.isdigit():
+        char = int(c)
+        if char is 1:
+            col = input("Z-оценка для столбца -  ")
+            while col.isdigit() is False or int(col) > 10 or int(col) < 2:
+                col = input('Это должно быть число в пределах 2-10.\n'
+                            ' Повторите ввод значения столбца -  ')
+            col = int(col)
+            z_value(data,col)
+        elif char is 2:
+            col1 = input("Z-оценка для солбцов от - ")
+            col2 = input("И до - ")
+            while col1.isdigit() is False or int(col1) > 10 or int(col1) < 2:
+                col1 = input("Повторите ввод начального столбца -  ")
+            while col2.isdigit() is False or int(col2) > 10 or int(col2) < 2:
+                col2 = input("Повторите ввод конечного столбца -  ")
+            col1 = int(col1)
+            col2 = int(col2)
+            if col2 < col1:
+                col = col2
+                col2 = col1
+                col1 = col
+                print('Столбцы поменяли местами:'
+                      'от - ', col1,', до - ',col2)
+            for item in range(col1,col2+1):
+                z_value(data,item)
+        else:
+            print('Операция не прошла успешно, т.к. Вы выбрали другой вариант\n')
+    else:
+        print('Операция не прошла успешно, т.к. Вы выбрали другой вариант\n')
+
+
+def z_value(data,item):
+    A = Sum(item,data)
+    k = 0
+    for i in range(len(data)):
+        if pd.isna(data[i][item]) is not True:
+            k = k + (data[i][item]-A)**2
+    sigma = math.sqrt(k/(len(data)-1))
+    z = list()
+    for i in range(len(data)):
+        if pd.isna(data[i][item]) is False:
+            z.append((data[i][item]-A)/sigma)
+            z[i] = str(z[i])
+        else:
+            z.append('')
+    filename = 'Z_2.csv'
+    if item > 2:
+        filename = filename[:2] + str(item) + filename[3:]
+    print(filename)
+    with open(filename, "w", newline="", encoding='utf8') as file:
+        writer = csv.writer(file)
+        for row in z:
+            a = row.split(',')
+            file.write(a[0] + ',\n')
+
+
 def main():
     df = pd.read_csv('NFA 2018.csv')
     '''Список заголовков и спосок данных'''
@@ -137,6 +203,8 @@ def main():
     dt = np.array(df)
     dt = missed(dt)
     dt = norm(dt)
+    z_menu(dt)
+
     '''Делаем год значением int'''
     for i in range(len(dt)):
         if pd.isna(dt[i][1]) is not True:
