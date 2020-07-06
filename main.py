@@ -185,15 +185,23 @@ def z_value(data,item):
             z[i] = str(z[i])
         else:
             z.append('')
+    d1 = []
+    for j in range(len(data)):
+        d2 = []
+        for i in range(2):
+            d2.append(data[j][i])
+        d2.append(z[j])
+        d1.append(d2)
     filename = 'Z_2.csv'
     if item > 2:
         filename = filename[:2] + str(item) + filename[3:]
     print(filename)
     with open(filename, "w", newline="", encoding='utf8') as file:
         writer = csv.writer(file)
-        for row in z:
-            a = row.split(',')
-            file.write(a[0] + ',\n')
+        writer.writerows(d1)
+        # for row in z:
+        #     a = row.split(',')
+        #     file.write(a[0] + ',\n')
 
 
 def main():
@@ -201,8 +209,8 @@ def main():
     '''Список заголовков и спосок данных'''
     headers = df.columns.tolist()
     dt = np.array(df)
-    dt = missed(dt)
-    dt = norm(dt)
+    # dt = missed(dt)
+    # dt = norm(dt)
     z_menu(dt)
 
     '''Делаем год значением int'''
