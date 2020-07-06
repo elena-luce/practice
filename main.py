@@ -209,8 +209,8 @@ def main():
     '''Список заголовков и спосок данных'''
     headers = df.columns.tolist()
     dt = np.array(df)
-    # dt = missed(dt)
-    # dt = norm(dt)
+    dt = missed(dt)
+    dt = norm(dt)
     z_menu(dt)
 
     '''Делаем год значением int'''
