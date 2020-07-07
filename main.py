@@ -123,30 +123,65 @@ def norm(data):
         print('Нормализация не прошла успешно, т.к. Вы ввели 0\n')
     return data
 
+def del_dup(data):
+
+    seen = set()
+#    data1 = data
+    seen.add(data[0][1])
+
+    data1 = data[0]
+    for i in range(1, (int(len(data))-1)):
+        if data[i][0] == data[i-1][0]:
+            if data[i][1] in seen:
+                continue
+            else:
+                data_plg = data[i]
+                data1 = np.vstack([data1, data_plg])
+                seen.add(data[i][1])
+        else:
+            seen.clear()
+            seen.add(data[i][1])
+
+    return data1
+
+
+
+
+
+
+
+
+
+
 def main():
     df = pd.read_csv('NFA 2018.csv')
+#   df.drop_duplicates(inplace = True)
     '''Список заголовков и спосок данных'''
     headers = df.columns.tolist()
     dt = np.array(df)
-    dt = missed(dt)
-    dt = norm(dt)
-    '''Делаем год значением int'''
-    for i in range(len(dt)):
-        if pd.isna(dt[i][1]) is not True:
-            dt[i][1] = int(dt[i][1])
+    dt = del_dup(dt)
+    print(dt)
+#    np.savetxt("foo1.csv", dt, fmt='%.18e', delimiter=',', newline='\n', header='', footer='', comments='# ', encoding=None)
+#     np.savetxt("foo.txt", dt, fmt = '%s')
+#    dt = missed(dt)
+#    dt = norm(dt)
+#    '''Делаем год значением int'''
+#    for i in range(len(dt)):
+#        if pd.isna(dt[i][1]) is not True:
+#            dt[i][1] = int(dt[i][1])
 
-    '''#Убрать строку ниже'''
-    num = list(range(11))
-    '''#Убрать строку выше(нумерация стобцов для удобства)'''
+#    '''#Убрать строку ниже'''
+#    num = list(range(11))
+#    '''#Убрать строку выше(нумерация стобцов для удобства)'''
 
-    '''!Запись в тестовый файл!'''
-    with open('Norm.csv', "w", newline="") as file:
-        writer = csv.writer(file)
-        '''#Убрать строку ниже'''
-        writer.writerow(num)
-        '''#Убрать строку выше(нумерация стобцов)'''
-        writer.writerow(headers)
-        writer.writerows(dt)
+#    '''!Запись в тестовый файл!'''
+#    with open('Norm22.csv', "w", newline="") as file:
+#       writer = csv.writer(file)
+#       '''#Убрать строку ниже'''
+#       writer.writerow(num)
+#       '''#Убрать строку выше(нумерация стобцов)'''
+#      writer.writerow(headers)
+#       writer.writerows(dt)
 
 # df.to_csv('New.csv')
 
