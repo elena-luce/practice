@@ -139,18 +139,17 @@ def norm(data):
 def z_graph(Z,item):
     x = np.arange(len(Z), dtype = int)
     fig = plt.figure()
-    plt.scatter(x, Z)
     for j in range(len(Z)-1,-1,-1):
-        # pd.isna(Z[j]) is False or
-        if Z[j] is not '':
-            if float(Z[j]) > 1.96 or float(Z[j]) < -1.96:
-            # print('j',j)
-                x = np.delete(x,j)
-                Z = np.delete(Z,j)
-        else:
+        if Z[j] is '':
             x = np.delete(x,j)
             Z = np.delete(Z,j)
-    plt.plot(x,Z,marker = 'o',markersize = 1,color = 'red')
+    plt.scatter(x, Z)
+    for j in range(len(Z)-1,-1,-1):
+        if Z[j] > '1.96' or Z[j] < '-1.96':
+        # print('j',j)
+            x = np.delete(x,j)
+            Z = np.delete(Z,j)
+    plt.plot(x,Z,marker = 'o',markersize = 10,color = 'red')
 
     grid1 = plt.grid(True)
     gr_name = 'График_2.png'
