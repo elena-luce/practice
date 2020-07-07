@@ -1,3 +1,5 @@
+# %matplotlib inline
+import matplotlib.pyplot as plt
 import csv
 import math
 import pandas as pd
@@ -32,10 +34,10 @@ def missed (data):
                         if pd.isna(data[i-1][item]) is not True:
                             data[i][item] = data[i-1][item]
             for i in range(len(data)):
-                    '''#0 столбец - страна'''
-                    if pd.isna(data[i][0]):
-                        if pd.isna(data[i-1][0]) is not True:
-                            data[i][0] = data[i-1][0]
+                '''#0 столбец - страна'''
+                if pd.isna(data[i][0]):
+                    if pd.isna(data[i-1][0]) is not True:
+                        data[i][0] = data[i-1][0]
             for i in range(len(data)):
                 '''#1 столбец - год'''
                 if pd.isna(data[i][1]):
@@ -134,6 +136,61 @@ def norm(data):
                 print('Нормализация не прошла успешно, т.к. Вы выбрали другой вариант\n')
     return data
 
+def z_graph(Z,item):
+    x = np.arange(len(Z), dtype = int)
+    fig = plt.figure()
+    plt.scatter(x, Z)
+    for j in range(len(Z)-1,-1,-1):
+        # pd.isna(Z[j]) is False or
+        if Z[j] is not '':
+            if float(Z[j]) > 1.96 or float(Z[j]) < -1.96:
+            # print('j',j)
+                x = np.delete(x,j)
+                Z = np.delete(Z,j)
+        else:
+            x = np.delete(x,j)
+            Z = np.delete(Z,j)
+    plt.plot(x,Z,marker = 'o',markersize = 1,color = 'red')
+
+    grid1 = plt.grid(True)
+    gr_name = 'График_2.png'
+    if item > 2:
+        gr_name = gr_name[:7] + str(item) + gr_name[8:]
+    print(gr_name)
+    plt.yticks([])
+    fig.savefig(gr_name)
+
+
+def z_value(data,item):
+    A = Sum(item,data)
+    k = 0
+    for i in range(len(data)):
+        if pd.isna(data[i][item]) is not True:
+            k = k + (data[i][item]-A)**2
+    sigma = math.sqrt(k/(len(data)-1))
+    z = []
+    for i in range(len(data)):
+        if pd.isna(data[i][item]) is False:
+            z.append((data[i][item]-A)/sigma)
+            z[i] = str(z[i])
+        else:
+            z.append('')
+    d1 = []
+    for j in range(len(data)):
+        d2 = []
+        for i in range(2):
+            d2.append(data[j][i])
+        d2.append(z[j])
+        d1.append(d2)
+    filename = 'Z_2.csv'
+    if item > 2:
+        filename = filename[:2] + str(item) + filename[3:]
+    print(filename)
+    with open(filename, "w", newline="", encoding='utf8') as file:
+        writer = csv.writer(file)
+        writer.writerows(d1)
+    z_graph(z,item)
+
 def z_menu(data):
     print('Выберите столец, к которому применить Z-оценку:')
     print('1.Один столбец')
@@ -170,47 +227,13 @@ def z_menu(data):
     else:
         print('Операция не прошла успешно, т.к. Вы выбрали другой вариант\n')
 
-
-def z_value(data,item):
-    A = Sum(item,data)
-    k = 0
-    for i in range(len(data)):
-        if pd.isna(data[i][item]) is not True:
-            k = k + (data[i][item]-A)**2
-    sigma = math.sqrt(k/(len(data)-1))
-    z = list()
-    for i in range(len(data)):
-        if pd.isna(data[i][item]) is False:
-            z.append((data[i][item]-A)/sigma)
-            z[i] = str(z[i])
-        else:
-            z.append('')
-    d1 = []
-    for j in range(len(data)):
-        d2 = []
-        for i in range(2):
-            d2.append(data[j][i])
-        d2.append(z[j])
-        d1.append(d2)
-    filename = 'Z_2.csv'
-    if item > 2:
-        filename = filename[:2] + str(item) + filename[3:]
-    print(filename)
-    with open(filename, "w", newline="", encoding='utf8') as file:
-        writer = csv.writer(file)
-        writer.writerows(d1)
-        # for row in z:
-        #     a = row.split(',')
-        #     file.write(a[0] + ',\n')
-
-
 def main():
     df = pd.read_csv('NFA 2018.csv')
     '''Список заголовков и спосок данных'''
     headers = df.columns.tolist()
     dt = np.array(df)
-    dt = missed(dt)
-    dt = norm(dt)
+    # dt = missed(dt)
+    # dt = norm(dt)
     z_menu(dt)
 
     '''Делаем год значением int'''
