@@ -1,9 +1,27 @@
-# %matplotlib inline
 import matplotlib.pyplot as plt
 import csv
 import math
 import pandas as pd
 import numpy as np
+
+def del_dup(data):
+    print('Пункт 1. Удаление дубликатов данных\n')
+    seen = set()
+    seen.add(data[0][1])
+    data1 = data[0]
+    for i in range(1, (int(len(data))-1)):
+        if data[i][0] == data[i-1][0]:
+            if data[i][1] in seen:
+                continue
+            else:
+                data_plg = data[i]
+                data1 = np.vstack([data1, data_plg])
+                seen.add(data[i][1])
+        else:
+            seen.clear()
+            seen.add(data[i][1])
+    print('Операция прошла успешно\n')
+    return data1
 
 def Sum(item,data):
     sum = 0
@@ -146,11 +164,9 @@ def z_graph(Z,item):
     plt.scatter(x, Z)
     for j in range(len(Z)-1,-1,-1):
         if Z[j] > '1.96' or Z[j] < '-1.96':
-        # print('j',j)
             x = np.delete(x,j)
             Z = np.delete(Z,j)
     plt.plot(x,Z,marker = 'o',markersize = 10,color = 'red')
-
     grid1 = plt.grid(True)
     gr_name = 'График_2.png'
     if item > 2:
@@ -161,6 +177,7 @@ def z_graph(Z,item):
 
 
 def z_value(data,item):
+    print('Столбец - ',item)
     A = Sum(item,data)
     k = 0
     for i in range(len(data)):
@@ -170,27 +187,46 @@ def z_value(data,item):
     z = []
     for i in range(len(data)):
         if pd.isna(data[i][item]) is False:
-            z.append((data[i][item]-A)/sigma)
-            z[i] = str(z[i])
+            nz = str(data[i][item])
+            n = nz.find('.')
+            if n >= 0:
+                nz = nz[:n] + nz[n+1:]
+            if (nz.count('0') is len(nz)):
+                z.append('')
+            else:
+                z.append((data[i][item]-A)/sigma)
+                z[i] = str(z[i])
         else:
             z.append('')
-    d1 = []
-    for j in range(len(data)):
-        d2 = []
-        for i in range(2):
-            d2.append(data[j][i])
-        d2.append(z[j])
-        d1.append(d2)
-    filename = 'Z_2.csv'
-    if item > 2:
-        filename = filename[:2] + str(item) + filename[3:]
-    print(filename)
-    with open(filename, "w", newline="", encoding='utf8') as file:
-        writer = csv.writer(file)
-        writer.writerows(d1)
-    z_graph(z,item)
+    b = False
+    i = -1
+    while(i < len(z)-1 and b is False):
+        i+=1
+        if z[i] is '':
+            b = False
+        else:
+            b = True
+    if b is True:
+        d1 = []
+        for j in range(len(data)):
+            d2 = []
+            for i in range(2):
+                d2.append(data[j][i])
+            d2.append(z[j])
+            d1.append(d2)
+        filename = 'Z_2.csv'
+        if item > 2:
+            filename = filename[:2] + str(item) + filename[3:]
+        print(filename)
+        with open(filename, "w", newline="", encoding='utf8') as file:
+            writer = csv.writer(file)
+            writer.writerows(d1)
+        z_graph(z,item)
+    else:
+        print('Невозможно провести Z-оценку, т.к. столбец содержит пустые значения или нули')
 
 def z_menu(data):
+    print('Пункт 5. Удаление аномалий с помощью Z-оценки\n')
     print('Выберите столец, к которому применить Z-оценку:')
     print('1.Один столбец')
     print('2.Несколько столбцов')
@@ -204,6 +240,7 @@ def z_menu(data):
                             ' Повторите ввод значения столбца -  ')
             col = int(col)
             z_value(data,col)
+            print('Операция прошла успешно\n')
         elif char is 2:
             col1 = input("Z-оценка для солбцов от - ")
             col2 = input("И до - ")
@@ -221,6 +258,7 @@ def z_menu(data):
                       'от - ', col1,', до - ',col2)
             for item in range(col1,col2+1):
                 z_value(data,item)
+            print('Операция прошла успешно\n')
         else:
             print('Операция не прошла успешно, т.к. Вы выбрали другой вариант\n')
     else:
@@ -231,6 +269,7 @@ def main():
     '''Список заголовков и спосок данных'''
     headers = df.columns.tolist()
     dt = np.array(df)
+    dt = del_dup(dt)
     # dt = missed(dt)
     # dt = norm(dt)
     z_menu(dt)
