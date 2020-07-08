@@ -158,12 +158,12 @@ def z_graph(Z,item):
     x = np.arange(len(Z), dtype = int)
     fig = plt.figure()
     for j in range(len(Z)-1,-1,-1):
-        if Z[j] is '':
+        if Z[j] is None:
             x = np.delete(x,j)
             Z = np.delete(Z,j)
     plt.scatter(x, Z)
     for j in range(len(Z)-1,-1,-1):
-        if Z[j] > '1.96' or Z[j] < '-1.96':
+        if (float(Z[j]) > 1.96) or (float(Z[j]) < -1.96):
             x = np.delete(x,j)
             Z = np.delete(Z,j)
     plt.plot(x,Z,marker = 'o',markersize = 10,color = 'red')
@@ -172,9 +172,7 @@ def z_graph(Z,item):
     if item > 2:
         gr_name = gr_name[:7] + str(item) + gr_name[8:]
     print(gr_name)
-    plt.yticks([])
     fig.savefig(gr_name)
-
 
 def z_value(data,item):
     print('Столбец - ',item)
@@ -192,17 +190,17 @@ def z_value(data,item):
             if n >= 0:
                 nz = nz[:n] + nz[n+1:]
             if (nz.count('0') is len(nz)):
-                z.append('')
+                z.append(None)
             else:
                 z.append((data[i][item]-A)/sigma)
-                z[i] = str(z[i])
+                # z[i] = str(z[i])
         else:
-            z.append('')
+            z.append(None)
     b = False
     i = -1
     while(i < len(z)-1 and b is False):
         i+=1
-        if z[i] is '':
+        if z[i] is None:
             b = False
         else:
             b = True
@@ -221,9 +219,14 @@ def z_value(data,item):
         with open(filename, "w", newline="", encoding='utf8') as file:
             writer = csv.writer(file)
             writer.writerows(d1)
+        for j in range(len(z)-1,-1,-1):
+            if z[j] is not None:
+                if (float(z[j]) > 1.96) or (float(z[j]) < -1.96):
+                    data = np.delete(data,j,0)
         z_graph(z,item)
     else:
         print('Невозможно провести Z-оценку, т.к. столбец содержит пустые значения или нули')
+    return data
 
 def z_menu(data):
     print('Пункт 5. Удаление аномалий с помощью Z-оценки\n')
@@ -239,7 +242,7 @@ def z_menu(data):
                 col = input('Это должно быть число в пределах 2-10.\n'
                             ' Повторите ввод значения столбца -  ')
             col = int(col)
-            z_value(data,col)
+            data = z_value(data,col)
             print('Операция прошла успешно\n')
         elif char is 2:
             col1 = input("Z-оценка для солбцов от - ")
@@ -257,12 +260,13 @@ def z_menu(data):
                 print('Столбцы поменяли местами:'
                       'от - ', col1,', до - ',col2)
             for item in range(col1,col2+1):
-                z_value(data,item)
+                data = z_value(data,item)
             print('Операция прошла успешно\n')
         else:
             print('Операция не прошла успешно, т.к. Вы выбрали другой вариант\n')
     else:
         print('Операция не прошла успешно, т.к. Вы выбрали другой вариант\n')
+    return data
 
 def main():
     df = pd.read_csv('NFA 2018.csv')
@@ -270,9 +274,9 @@ def main():
     headers = df.columns.tolist()
     dt = np.array(df)
     dt = del_dup(dt)
-    # dt = missed(dt)
-    # dt = norm(dt)
-    z_menu(dt)
+    dt = missed(dt)
+    dt = norm(dt)
+    dt = z_menu(dt)
 
     '''Делаем год значением int'''
     for i in range(len(dt)):
