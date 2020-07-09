@@ -300,16 +300,9 @@ def main():
         if pd.isna(dt[i][1]) is not True:
             dt[i][1] = int(dt[i][1])
 
-    '''#Убрать строку ниже'''
-    num = list(range(11))
-    '''#Убрать строку выше(нумерация стобцов для удобства)'''
-
     '''!Запись в тестовый файл!'''
     with open('New.csv', "w", newline="", encoding='utf8') as file:
         writer = csv.writer(file)
-        '''#Убрать строку ниже'''
-        writer.writerow(num)
-        '''#Убрать строку выше(нумерация стобцов)'''
         writer.writerow(headers)
         writer.writerows(dt)
 
