@@ -4,11 +4,12 @@ import math
 import pandas as pd
 import numpy as np
 
-def del_dup(data):
+def del_dup(data):    #Функция удаления дубликатов
     print('Пункт 1. Удаление дубликатов данных\n')
     seen = set()
     seen.add(data[0][1])
     data1 = data[0]
+    print('Идет удаление... Дождитесь его окончания.')
     for i in range(1, (int(len(data))-1)):
         if data[i][0] == data[i-1][0]:
             if data[i][1] in seen:
@@ -23,7 +24,7 @@ def del_dup(data):
     print('Операция прошла успешно\n')
     return data1
 
-def Sum(item,data):
+def Sum(item,data):     #Функция нахождения среднего арифмитического
     sum = 0
     for i in range(len(data)):
         if pd.isna(data[i][item]) is not True:
@@ -31,9 +32,14 @@ def Sum(item,data):
     arif_mean = sum/len(data)
     return arif_mean
 
-def missed (data):
-    print('Пункт 1:\n')
+def missed (data):      #Функция замены пропущенных
+    print('Пункт 2. Замена пропущенных значений\n')
     '''Меню'''
+    print('Названия столбцов:\n'
+              '0.country        1.year          2.crop_land\n'
+              '3.grazing_land   4.forest_land   5.fishing_ground\n'
+              '6.built_up_land  7.carbon        8.total\n'
+              '9.percapita      10.population\n')
     print('Выберите, как заменять пропущенные значения:')
     print('1.Игнорировать')
     print('2.Взять значение по-умолчанию')
@@ -42,9 +48,9 @@ def missed (data):
     if c.isdigit():
         char = int(c)
         if char is 2:
-            print('Значение по-умолчанию для 2 столбца - 2020')
-            print('Значение по-умолчанию для 3-8 считается из общего')
-            print('Значение по-умолчанию для 1,9-11 - берется из предыдущей строки')
+            print('Значение по-умолчанию для 1 столбца - 2020')
+            print('Значение по-умолчанию для 2-7 считается из общего')
+            print('Значение по-умолчанию для 0,8-10 - берется из предыдущей строки')
             for item in range(8,11):
                 for i in range(len(data)):
                     '''#8-10 столбец'''
@@ -67,17 +73,18 @@ def missed (data):
             print('Все пропущенные значения заменены\n')
         elif char is 3:
             print('Среднее значение считается по всем странам')
-            print('Значение для 1 столбца - берется из предыдущей строки')
+            print('Значение для 0 столбца - берется из предыдущей строки')
+            '''#0 столбец - страна'''
             for i in range(len(data)):
-                    '''#0 столбец - страна'''
                     if pd.isna(data[i][0]):
                         if pd.isna(data[i-1][0]) is not True:
                             data[i][0] = data[i-1][0]
             for item in range(1,11):
+                theSum = Sum(item,data)
                 '''#1-10 столбец'''
                 for i in range(len(data)):
                     if pd.isna(data[i][item]):
-                        data[i][item] = Sum(item,data)
+                        data[i][item] = theSum
                 '''Проверка:'''
                 # print('Сумма - ',theSum,' длина - ',len(data))
                 # print('Программа - ',theSum/len(data))
@@ -88,7 +95,7 @@ def missed (data):
         print('Значения игнорируются, т.к. Вы выбрали другой вариант\n')
     return data
 
-def is_digit(string):
+def is_digit(string):   #Функция проверки на число для int, float
         if string.isdigit():
             return True
         else:
@@ -98,8 +105,8 @@ def is_digit(string):
             except ValueError:
                 return False
 
-def norm(data):
-    print('Пункт 2:\n')
+def norm(data):     #Функция нормализации
+    print('Пункт 3. Нормализация.\n')
     '''Меню'''
     c = input('Введите коэффициент для нормализации:')
     while is_digit(c) is not True:
@@ -115,6 +122,10 @@ def norm(data):
         c = c[:n] + '.'+ c[n:]
         '''Умножение на коэффициент'''
         k = float(c)
+        print('Названия столбцов:\n'
+              '2.crop_land          3.grazing_land      4.forest_land\n'
+              '5.fishing_ground     6.built_up_land     7.carbon\n'
+              '8.total              9.percapita         10.population\n')
         print('К каким столбцам применить коэффициент?')
         print('1.Один столбец')
         print('2.Несколько столбцов')
@@ -152,9 +163,11 @@ def norm(data):
                 print('Нормализация прошла успешно\n')
             else:
                 print('Нормализация не прошла успешно, т.к. Вы выбрали другой вариант\n')
+        else:
+                print('Нормализация не прошла успешно, т.к. Вы выбрали другой вариант\n')
     return data
 
-def z_graph(Z,item):
+def z_graph(Z,item):    #Функция построения графика для Z-оценки
     x = np.arange(len(Z), dtype = int)
     fig = plt.figure()
     for j in range(len(Z)-1,-1,-1):
@@ -174,7 +187,7 @@ def z_graph(Z,item):
     print(gr_name)
     fig.savefig(gr_name)
 
-def z_value(data,item):
+def z_value(data,item):     #Функция рассчета Z-значения
     print('Столбец - ',item)
     A = Sum(item,data)
     k = 0
@@ -193,7 +206,6 @@ def z_value(data,item):
                 z.append(None)
             else:
                 z.append((data[i][item]-A)/sigma)
-                # z[i] = str(z[i])
         else:
             z.append(None)
     b = False
@@ -224,13 +236,18 @@ def z_value(data,item):
                 if (float(z[j]) > 1.96) or (float(z[j]) < -1.96):
                     data = np.delete(data,j,0)
         z_graph(z,item)
+        print('Операция прошла успешно для текущего столбца\n')
     else:
         print('Невозможно провести Z-оценку, т.к. столбец содержит пустые значения или нули')
     return data
 
-def z_menu(data):
-    print('Пункт 5. Удаление аномалий с помощью Z-оценки\n')
-    print('Выберите столец, к которому применить Z-оценку:')
+def z_menu(data):       #Функция меню для Z-оценки
+    print('Пункт 4. Удаление аномалий с помощью Z-оценки\n')
+    print('Названия столбцов:\n'
+              '2.crop_land          3.grazing_land      4.forest_land\n'
+              '5.fishing_ground     6.built_up_land     7.carbon\n'
+              '8.total              9.percapita         10.population\n')
+    print('К каким столбцам применить Z-оценку?')
     print('1.Один столбец')
     print('2.Несколько столбцов')
     c = input()
@@ -242,8 +259,8 @@ def z_menu(data):
                 col = input('Это должно быть число в пределах 2-10.\n'
                             ' Повторите ввод значения столбца -  ')
             col = int(col)
+            print('Z-значения столбца хранятся в файлах:')
             data = z_value(data,col)
-            print('Операция прошла успешно\n')
         elif char is 2:
             col1 = input("Z-оценка для солбцов от - ")
             col2 = input("И до - ")
@@ -259,9 +276,9 @@ def z_menu(data):
                 col1 = col
                 print('Столбцы поменяли местами:'
                       'от - ', col1,', до - ',col2)
+            print('Z-значения каждого столбца хранятся в файлах:')
             for item in range(col1,col2+1):
                 data = z_value(data,item)
-            print('Операция прошла успешно\n')
         else:
             print('Операция не прошла успешно, т.к. Вы выбрали другой вариант\n')
     else:
@@ -288,7 +305,7 @@ def main():
     '''#Убрать строку выше(нумерация стобцов для удобства)'''
 
     '''!Запись в тестовый файл!'''
-    with open('Norm.csv', "w", newline="", encoding='utf8') as file:
+    with open('New.csv', "w", newline="", encoding='utf8') as file:
         writer = csv.writer(file)
         '''#Убрать строку ниже'''
         writer.writerow(num)
@@ -296,7 +313,6 @@ def main():
         writer.writerow(headers)
         writer.writerows(dt)
 
-# df.to_csv('New.csv')
 
 if __name__=="__main__":
     main()
