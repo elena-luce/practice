@@ -1,6 +1,8 @@
 import matplotlib.pyplot as plt
 import csv
 import math
+from scipy.stats import chi2_contingency
+from scipy.stats import chi2
 import pandas as pd
 import numpy as np
 
@@ -285,6 +287,139 @@ def z_menu(data):       #Функция меню для Z-оценки
         print('Операция не прошла успешно, т.к. Вы выбрали другой вариант\n')
     return data
 
+def dependent(table1):
+    # print(table1)
+    D = False
+    I = False
+    stat, p, dof, expected = chi2_contingency(table1)
+    # print('dof=%d' % dof)
+    # print(expected)
+    prob = 0.95
+    critical = chi2.ppf(prob, dof)
+    # print('probability=%.3f, critical=%.3f, stat=%.3f' % (prob, critical, stat))
+    if abs(stat) >= critical:
+        D = True #Dependent
+    else:
+        D = False #Independent
+
+    alpha = 1.0 - prob
+    # print('significance=%.3f, p=%.3f' % (alpha, p))
+    if p <= alpha:
+        I = True #Dependent
+    else:
+        I = False #Independent
+    rem = False
+    if D is False and I is False:
+        rem = True     #Независимы
+    elif D is True and I is True:
+        rem = False     #Зависимы
+    else:
+        print('Две оценки теста Хи-квадрат показали противоположные результаты.'
+              ' Удалять ли столбец?')
+        c = input()
+        if c is 'yes' or 'да':
+            rem = True
+        elif c is 'no' or 'нет':
+            rem = False
+        else:
+            print('Вы не ввели ожидаемый ответ. Столбец не будет удален.')
+    return rem
+
+def remove(table):
+    table1 =table[2:10]     #10col
+    if dependent(table1) is True:
+        table1 = np.delete(table,10,0)
+        return table1,10
+    table1 = table[2:9]+ table[10]    #9col
+    if dependent(table1) is True:
+        table1 = np.delete(table,9,0)
+        return table1,9
+    table1 = table[2:8]+ table[9:11]     #8col
+    if dependent(table1) is True:
+        table1 = np.delete(table,8,0)
+        return table1,8
+    table1 = table[2:7]+ table[8:11]     #7col
+    if dependent(table1) is True:
+        table1 = np.delete(table,7,0)
+        return table1,7
+    table1 = table[2:6]+ table[7:11]     #6col
+    if dependent(table1) is True:
+        table1 = np.delete(table,6,0)
+        return table1,6
+    table1 = table[2:5]+ table[6:11]     #5col
+    if dependent(table1) is True:
+        table1 = np.delete(table,5,0)
+        return table1,5
+    table1 = table[2:4]+ table[5:11]     #4col
+    if dependent(table1) is True:
+        table1 = np.delete(table,4,0)
+        return table1,4
+    table1 =table[2]+table[4:11]     #3col
+    if dependent(table1) is True:
+        table1 = np.delete(table,3,0)
+        return table1,3
+    table1 =table[3:11]     #2col
+    if dependent(table1) is True:
+        table1 = np.delete(table,2,0)
+        return table1,2
+
+def chi_sqr(data):
+    print('Пункт 5. Удаление столбцов на основе Хи-квадрат теста\n')
+    Na = 0
+    col = 0
+    for item in range(2,11):
+        for i in range(len(data)):
+            if pd.isna(data[i][item]) is False:
+                Na += 1
+    if Na ==len(data)*9:
+        table = data.transpose()
+        table1 = table[2:11]
+        D = False
+        I = False
+        stat, p, dof, expected = chi2_contingency(table1)
+        # print('dof=%d' % dof)
+        # print(expected)
+        prob = 0.95
+        critical = chi2.ppf(prob, dof)
+        # print('probability=%.3f, critical=%.3f, stat=%.3f' % (prob, critical, stat))
+        if abs(stat) >= critical:
+            D = True #Dependent
+        else:
+            D = False #Independent
+
+        alpha = 1.0 - prob
+        # print('significance=%.3f, p=%.3f' % (alpha, p))
+        if p <= alpha:
+            I = True #Dependent
+        else:
+            I = False #Independent
+
+        if D is False and I is False:
+            print('Столбцы независимы')
+        elif D is True and I is True:
+            print('Столбцы зависимы')
+            table,col = remove(table)
+            data = table.transpose()
+        else:
+            print('Две оценки теста Хи-квадрат показали противоположные результаты.'
+              ' Удалять ли столбцы?')
+            c = input()
+            if c is 'yes' or 'да':
+                print('Столбцы приняты зависимыми')
+                table,col = remove(table)
+                data = table.transpose()
+            elif c is 'no' or 'нет':
+                print('Столбцы приняты независимыми')
+            else:
+                print('Вы не ввели ожидаемый ответ. Столбцы не будет удалены.')
+        print('Зависимые столбцы удалены.\n')
+    else:
+        print('Операция не прошла успешно, т.к. таблица содержит пустые занчения,'
+              ' с которыми Хи-квадрат тест не работает\n')
+    return data,col
+
+
+
 def main():
     df = pd.read_csv('NFA 2018.csv')
     '''Список заголовков и спосок данных'''
@@ -294,13 +429,15 @@ def main():
     dt = missed(dt)
     dt = norm(dt)
     dt = z_menu(dt)
+    ki,col = chi_sqr(dt)
+    del headers[col]
 
     '''Делаем год значением int'''
     for i in range(len(dt)):
         if pd.isna(dt[i][1]) is not True:
             dt[i][1] = int(dt[i][1])
 
-    '''!Запись в тестовый файл!'''
+    print('Очищенные данные хранятся в файле "New.csv"')
     with open('New.csv', "w", newline="", encoding='utf8') as file:
         writer = csv.writer(file)
         writer.writerow(headers)
