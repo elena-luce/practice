@@ -118,55 +118,56 @@ def norm(data):     #Функция нормализации
     n = c.find('.')
     if n >= 0:
         c = c[:n] + c[n+1:]
-    if (c.count('0') is len(c)):
-        print('Нормализация не прошла успешно, т.к. Вы ввели 0\n')
-    else:
-        c = c[:n] + '.'+ c[n:]
-        '''Умножение на коэффициент'''
-        k = float(c)
-        print('Названия столбцов:\n'
-              '2.crop_land          3.grazing_land      4.forest_land\n'
-              '5.fishing_ground     6.built_up_land     7.carbon\n'
-              '8.total              9.percapita         10.population\n')
-        print('К каким столбцам применить коэффициент?')
-        print('1.Один столбец')
-        print('2.Несколько столбцов')
-        c = input()
-        if c.isdigit():
-            char = int(c)
-            if char is 1:
-                col = input("Нормализуется столбец -  ")
-                while col.isdigit() is False or int(col) > 10 or int(col) < 2:
-                    col = input('Это должно быть число в пределах 2-10.\n'
-                                ' Повторите ввод нормализуемого столбца -  ')
-                col = int(col)
-                for i in range(len(data)):
-                    data[i][col] = data[i][col]*k
-                print('Нормализация прошла успешно\n')
-            elif char is 2:
-                col1 = input("Нормализуются значения столбцов начиная от - ")
-                col2 = input("И до - ")
-                while col1.isdigit() is False or int(col1) > 10 or int(col1) < 2:
-                    col1 = input("Повторите ввод начального столбца -  ")
-                while col2.isdigit() is False or int(col2) > 10 or int(col2) < 2:
-                    col2 = input("Повторите ввод конечного столбца -  ")
-                col1 = int(col1)
-                col2 = int(col2)
-                if col2 < col1:
-                    col = col2
-                    col2 = col1
-                    col1 = col
-                    print('Столбцы поменяли местами:'
-                          'от - ', col1,', до - ',col2)
-                for item in range(col1,col2+1):
-                    '''#выбранные столбцы'''
-                    for i in range(len(data)):
-                        data[i][item] = data[i][item]*k
-                print('Нормализация прошла успешно\n')
-            else:
-                print('Нормализация не прошла успешно, т.к. Вы выбрали другой вариант\n')
+        if (c.count('0') is len(c)):
+            print('Нормализация не прошла успешно, т.к. Вы ввели 0\n')
+            return data
         else:
-                print('Нормализация не прошла успешно, т.к. Вы выбрали другой вариант\n')
+            c = c[:n] + '.'+ c[n:]
+    '''Умножение на коэффициент'''
+    k = float(c)
+    print('Названия столбцов:\n'
+          '2.crop_land          3.grazing_land      4.forest_land\n'
+          '5.fishing_ground     6.built_up_land     7.carbon\n'
+          '8.total              9.percapita         10.population\n')
+    print('К каким столбцам применить коэффициент?')
+    print('1.Один столбец')
+    print('2.Несколько столбцов')
+    c = input()
+    if c.isdigit():
+        char = int(c)
+        if char is 1:
+            col = input("Нормализуется столбец -  ")
+            while col.isdigit() is False or int(col) > 10 or int(col) < 2:
+                col = input('Это должно быть число в пределах 2-10.\n'
+                            ' Повторите ввод нормализуемого столбца -  ')
+            col = int(col)
+            for i in range(len(data)):
+                data[i][col] = data[i][col]*k
+            print('Нормализация прошла успешно\n')
+        elif char is 2:
+            col1 = input("Нормализуются значения столбцов начиная от - ")
+            col2 = input("И до - ")
+            while col1.isdigit() is False or int(col1) > 10 or int(col1) < 2:
+                col1 = input("Повторите ввод начального столбца -  ")
+            while col2.isdigit() is False or int(col2) > 10 or int(col2) < 2:
+                col2 = input("Повторите ввод конечного столбца -  ")
+            col1 = int(col1)
+            col2 = int(col2)
+            if col2 < col1:
+                col = col2
+                col2 = col1
+                col1 = col
+                print('Столбцы поменяли местами:'
+                      'от - ', col1,', до - ',col2)
+            for item in range(col1,col2+1):
+                '''#выбранные столбцы'''
+                for i in range(len(data)):
+                    data[i][item] = data[i][item]*k
+            print('Нормализация прошла успешно\n')
+        else:
+            print('Нормализация не прошла успешно, т.к. Вы выбрали другой вариант\n')
+    else:
+        print('Нормализация не прошла успешно, т.к. Вы выбрали другой вариант\n')
     return data
 
 def z_graph(Z,item):    #Функция построения графика для Z-оценки
